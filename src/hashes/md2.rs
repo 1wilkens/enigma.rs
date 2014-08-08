@@ -1,7 +1,3 @@
-
-use std::cmp::{min};
-use std::vec::Vec;
-
 static MD2_S_Table: &'static [u8] = &[
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
     0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
@@ -26,15 +22,36 @@ pub struct MD2_HashState {
     check_sum : [u8, ..16],
     x         : [u8, ..48],
     buffer    : [u8, ..16],
-    cur_len   : uint     // Not sure how big this needs to be!?
+    cur_len   : uint
 }
 
 fn md2_compress(state: &mut MD2_HashState) {
+   /* copy block to state.x */
+   for i in range(0, 16) {
+       state.x[16 + i] = state.buffer[i];
+       state.x[32 + i] = state.x[i] ^ state.x[16 + i];
+   }
 
+   let mut t = 0u8;
+   /* perform 18 rounds */
+   for round in range(0, 18) {
+       for i in range(0, 48) {
+           state.x[i] ^= MD2_S_Table[(t & 255) as uint];
+           t = state.x[i];
+       }
+       t = t + round & 255;
+   }
 }
 
-fn md2_update_chksum(state: &mut MD2_HashState) {
-
+#[allow(uppercase_variables)]
+fn md2_update_checksum(state: &mut MD2_HashState) {
+    let mut L = state.check_sum[15];
+    for i in range(0, 16) {
+        /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference
+         * source code [and test vectors] say otherwise. */
+        state.check_sum[i] ^= MD2_S_Table[(state.buffer[i] ^ L) as uint] & 255;
+        L = state.check_sum[i];
+    }
 }
 
 pub fn md2_init() -> Option<MD2_HashState> {
@@ -48,6 +65,9 @@ pub fn md2_init() -> Option<MD2_HashState> {
 }
 
 pub fn md2_process(state: &mut MD2_HashState, msg_in: Vec<u8>) -> Option<MD2_HashState> {
+
+    use std::cmp::{min};
+
     // When is this the case?
     if state.cur_len > state.buffer.len() {
        return None
@@ -69,10 +89,10 @@ pub fn md2_process(state: &mut MD2_HashState, msg_in: Vec<u8>) -> Option<MD2_Has
         index         += n;
         msg_len       -= n;
 
-        /* is 16 bytes full? */
+        /* if 16 bytes are filled compress and update checksum */
         if state.cur_len == 16 {
             md2_compress(state);
-            md2_update_chksum(state);
+            md2_update_checksum(state);
             state.cur_len = 0;
         }
     }
@@ -94,7 +114,7 @@ pub fn md2_done(state: &mut MD2_HashState) -> Option<[u8, ..16]> {
 
     /* hash and update */
     md2_compress(state);
-    md2_update_chksum(state);
+    md2_update_checksum(state);
 
     /* hash checksum */
     for i in range(0, 16) {

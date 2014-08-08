@@ -1,5 +1,7 @@
 #![crate_name = "enigma"]
-#![deny(missing_doc)]
+#![crate_type = "lib"]
 
-//! Documentation goes here.
+//#![deny(missing_doc)]
 
+pub mod ciphers;
+pub mod hashes;

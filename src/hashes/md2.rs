@@ -1,5 +1,3 @@
-use hashes::HashFunction;
-
 static MD2_S_Table: &'static [u8] = &[
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
     0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
@@ -59,6 +57,10 @@ fn md2_update_checksum(state: &mut MD2) {
 }
 
 impl MD2 {
+    /// Creates a new MD2 instance
+    ///
+    /// # Returns
+    /// * The created instance
     pub fn new() -> MD2 {
         MD2 {
             check_sum : [0, ..16],
@@ -76,16 +78,12 @@ impl MD2 {
     }
 }
 
-impl HashFunction for MD2 {
+impl ::hashes::HashFunction for MD2 {
     fn set_input(&mut self, input: &[u8]) {
         use std::cmp::{min};
 
+        // First reset the hash state
         self.reset();
-
-        // When is this the case?
-        if self.cur_len > self.buffer.len() {
-           fail!()
-        }
 
         let mut index = 0u;
         let mut in_len = input.len();
@@ -113,7 +111,7 @@ impl HashFunction for MD2 {
     }
 
     fn hash(&mut self) {
-        // Again when is this the case?
+        // When is this the case?
         if self.cur_len >= self.buffer.len() {
            fail!()
         }

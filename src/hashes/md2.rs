@@ -162,7 +162,7 @@ mod tests {
                     0x83,0x50,0xe5,0xa3,0xe2,0x4c,0x15,0x3d,
                     0xf2,0x27,0x5c,0x9f,0x80,0x69,0x27,0x73
                 ],
-                output_str: ""
+                output_str: "8350e5a3e24c153df2275c9f80692773"
             },
             HashTestCase {
                 input: "a",
@@ -170,7 +170,7 @@ mod tests {
                     0x32,0xec,0x01,0xec,0x4a,0x6d,0xac,0x72,
                     0xc0,0xab,0x96,0xfb,0x34,0xc0,0xb5,0xd1
                 ],
-                output_str: ""
+                output_str: "32ec01ec4a6dac72c0ab96fb34c0b5d1"
             },
             HashTestCase {
                 input: "message digest",
@@ -178,7 +178,7 @@ mod tests {
                     0xab,0x4f,0x49,0x6b,0xfb,0x2a,0x53,0x0b,
                     0x21,0x9f,0xf3,0x30,0x31,0xfe,0x06,0xb0
                 ],
-                output_str: ""
+                output_str: "ab4f496bfb2a530b219ff33031fe06b0"
             },
             HashTestCase {
                 input: "abcdefghijklmnopqrstuvwxyz",
@@ -186,7 +186,7 @@ mod tests {
                     0x4e,0x8d,0xdf,0xf3,0x65,0x02,0x92,0xab,
                     0x5a,0x41,0x08,0xc3,0xaa,0x47,0x94,0x0b
                 ],
-                output_str: ""
+                output_str: "4e8ddff3650292ab5a4108c3aa47940b"
             },
             HashTestCase {
                 input: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
@@ -194,7 +194,7 @@ mod tests {
                     0xda,0x33,0xde,0xf2,0xa4,0x2d,0xf1,0x39,
                     0x75,0x35,0x28,0x46,0xc3,0x03,0x38,0xcd
                 ],
-                output_str: ""
+                output_str: "da33def2a42df13975352846c30338cd"
             },
             HashTestCase {
                 input: "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
@@ -202,7 +202,7 @@ mod tests {
                     0xd5,0x97,0x6f,0x79,0xd8,0x3d,0x3a,0x0d,
                     0xc9,0x80,0x6c,0x3c,0x66,0xf3,0xef,0xd8
                 ],
-                output_str: ""
+                output_str: "d5976f79d83d3a0dc9806c3c66f3efd8"
             }
         ];
 

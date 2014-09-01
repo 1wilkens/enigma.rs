@@ -44,7 +44,12 @@ pub trait HashFunction {
     /// * The resulting hex-String
     //FIXME: figure out how to properly document return values
     fn get_output_str(&mut self) -> String {
-        String::new()
+        use serialize::hex::ToHex;
+        use std::vec::Vec;
+
+        let mut output = Vec::from_elem(self.get_output_length(), 0u8);
+        self.get_output(output.as_mut_slice());
+        output.as_slice().to_hex()
     }
 
     /// Returns the blocksize of the HashFunction used in bytes
@@ -80,22 +85,29 @@ mod test {
     }
 
     pub fn perform_hash_test(hash: &mut HashFunction, test: &HashTestCase) {
+        println!("Testing hash against:\t \"{:2}\"", test.input)
         hash.set_input_str(test.input);
         hash.hash();
+
         let mut result = Vec::from_elem(hash.get_output_length(), 0u8);
         hash.get_output(result.as_mut_slice());
-        println!("result:")
-        for r in result.iter() {
-            print!("{:u} ", *r)
-        }
-        println!("")
-        println!("output:")
-        for o in test.output.iter() {
-            print!("{:u} ", *o)
-        }
-        println!("")
         let result_str = hash.get_output_str();
+
+        print!("result: \t\t")
+        for r in result.iter() {
+            print!("0x{:x} ", *r)
+        }
+        println!("")
+        print!("(expected) output:\t")
+        for o in test.output.iter() {
+            print!("0x{:x} ", *o)
+        }
+        println!("")
+        println!("result_str:\t\t{:s}", result_str)
+        println!("(expected) output_str:\t{:s}", test.output_str)
+        println!("")
+
         assert!(result == test.output)
-        //assert!(result_str == test.output_str.to_string())
+        assert!(result_str.as_slice() == test.output_str)
     }
 }

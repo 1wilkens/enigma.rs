@@ -1,3 +1,5 @@
+use hashes::HashFunction;
+
 static MD2_S_Table: &'static [u8] = &[
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
     0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
@@ -17,15 +19,17 @@ static MD2_S_Table: &'static [u8] = &[
     0x31, 0x44, 0x50, 0xB4, 0x8F, 0xED, 0x1F, 0x1A, 0xDB, 0x99, 0x8D, 0x33, 0x9F, 0x11, 0x83, 0x14
 ];
 
+/// Struct storing the necessary state for the Message Digest 2 (MD2) hash function
+/// Code is ported and `rustified` from libtomcrypt
 #[allow(non_camel_case_types)]
-pub struct MD2_HashState {
+pub struct MD2 {
     check_sum : [u8, ..16],
     x         : [u8, ..48],
     buffer    : [u8, ..16],
     cur_len   : uint
 }
 
-fn md2_compress(state: &mut MD2_HashState) {
+fn md2_compress(state: &mut MD2) {
    /* copy block to state.x */
    for i in range(0, 16) {
        state.x[16 + i] = state.buffer[i];
@@ -43,8 +47,8 @@ fn md2_compress(state: &mut MD2_HashState) {
    }
 }
 
-#[allow(uppercase_variables)]
-fn md2_update_checksum(state: &mut MD2_HashState) {
+#[allow(non_snake_case)]
+fn md2_update_checksum(state: &mut MD2) {
     let mut L = state.check_sum[15];
     for i in range(0, 16) {
         /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference
@@ -54,118 +58,157 @@ fn md2_update_checksum(state: &mut MD2_HashState) {
     }
 }
 
-pub fn md2_init() -> Option<MD2_HashState> {
-    // Could also impl 'Default' Trait for MD2_HashState
-    Some(MD2_HashState {
-        check_sum : [0, ..16],
-        x         : [0, ..48],
-        buffer    : [0, ..16],
-        cur_len   : 0
-        })
-}
-
-pub fn md2_process(state: &mut MD2_HashState, msg_in: Vec<u8>) -> Option<MD2_HashState> {
-
-    use std::cmp::{min};
-
-    // When is this the case?
-    if state.cur_len > state.buffer.len() {
-       return None
-    }
-
-    let mut index = 0u;
-    let mut msg_len = msg_in.len();
-
-    loop {
-        if msg_len <= 0 {
-            break;
-        }
-
-        let n = min(msg_len, (16 - state.cur_len));
-        for i in range(0, n) {
-            state.buffer[state.cur_len + i] = msg_in[index + i];
-        }
-        state.cur_len += n;
-        index         += n;
-        msg_len       -= n;
-
-        /* if 16 bytes are filled compress and update checksum */
-        if state.cur_len == 16 {
-            md2_compress(state);
-            md2_update_checksum(state);
-            state.cur_len = 0;
+impl MD2 {
+    pub fn new() -> MD2 {
+        MD2 {
+            check_sum : [0, ..16],
+            x         : [0, ..48],
+            buffer    : [0, ..16],
+            cur_len   : 0
         }
     }
 
-    Some(*state)
+    fn reset(&mut self) {
+        self.check_sum = [0, ..16];
+        self.x         = [0, ..48];
+        self.buffer    = [0, ..16];
+        self.cur_len   = 0;
+    }
 }
 
-pub fn md2_done(state: &mut MD2_HashState) -> Option<[u8, ..16]> {
+impl HashFunction for MD2 {
+    fn set_input(&mut self, input: &[u8]) {
+        use std::cmp::{min};
 
-    if state.cur_len >= state.buffer.len() {
-       return None;
+        self.reset();
+
+        // When is this the case?
+        if self.cur_len > self.buffer.len() {
+           fail!()
+        }
+
+        let mut index = 0u;
+        let mut in_len = input.len();
+
+        loop {
+            if in_len <= 0 {
+                break;
+            }
+
+            let n = min(in_len, (16 - self.cur_len));
+            for i in range(0, n) {
+                self.buffer[self.cur_len + i] = input[index + i];
+            }
+            self.cur_len += n;
+            index         += n;
+            in_len       -= n;
+
+            /* if 16 bytes are filled compress and update checksum */
+            if self.cur_len == 16 {
+                md2_compress(self);
+                md2_update_checksum(self);
+                self.cur_len = 0;
+            }
+        }
     }
 
-    /* pad the message */
-    let k: u8 = 16u8 - state.cur_len as u8;
-    for i in range(state.cur_len, 16) {
-        state.buffer[i] = k;
+    fn hash(&mut self) {
+        // Again when is this the case?
+        if self.cur_len >= self.buffer.len() {
+           fail!()
+        }
+
+        /* pad the message */
+        let k: u8 = 16u8 - self.cur_len as u8;
+        for i in range(self.cur_len, 16) {
+            self.buffer[i] = k;
+        }
+
+        /* hash and update */
+        md2_compress(self);
+        md2_update_checksum(self);
+
+        /* hash checksum */
+        for i in range(0, 16) {
+            self.buffer[i] = self.check_sum[i];
+        }
+        md2_compress(self);
     }
 
-    /* hash and update */
-    md2_compress(state);
-    md2_update_checksum(state);
+    fn get_output(&mut self, output: &mut [u8]) {
+        assert!(output.len() >= self.get_output_length())
 
-    /* hash checksum */
-    for i in range(0, 16) {
-        state.buffer[i] = state.check_sum[i];
+        for i in range(0, 16) {
+            output[i] = self.x[i];
+        }
     }
-    md2_compress(state);
 
-    let mut result = [0u8, ..16];
-    /* output is lower 16 bytes of X */
-    for i in range(0, 16) {
-        result[i] = state.x[i];
-    }
-    Some(result)
+    fn get_blocksize(&self) -> uint { 16 }
+
+    fn get_output_length_in_bits(&self) -> uint { 128 }
 }
 
-#[test]
-fn test_md2() {
-    let tests: Vec<(String, [u8, ..16])> = vec![
-        ("".to_string(), [
-            0x83,0x50,0xe5,0xa3,0xe2,0x4c,0x15,0x3d,
-            0xf2,0x27,0x5c,0x9f,0x80,0x69,0x27,0x73
-        ]),
-        ("a".to_string(), [
-            0x32,0xec,0x01,0xec,0x4a,0x6d,0xac,0x72,
-            0xc0,0xab,0x96,0xfb,0x34,0xc0,0xb5,0xd1
-        ]),
-        ("message digest".to_string(), [
-            0xab,0x4f,0x49,0x6b,0xfb,0x2a,0x53,0x0b,
-            0x21,0x9f,0xf3,0x30,0x31,0xfe,0x06,0xb0
-        ]),
-        ("abcdefghijklmnopqrstuvwxyz".to_string(), [
-            0x4e,0x8d,0xdf,0xf3,0x65,0x02,0x92,0xab,
-            0x5a,0x41,0x08,0xc3,0xaa,0x47,0x94,0x0b
-        ]),
-        ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".to_string(), [
-            0xda,0x33,0xde,0xf2,0xa4,0x2d,0xf1,0x39,
-            0x75,0x35,0x28,0x46,0xc3,0x03,0x38,0xcd
-        ]),
-        ("12345678901234567890123456789012345678901234567890123456789012345678901234567890".to_string(), [
-            0xd5,0x97,0x6f,0x79,0xd8,0x3d,0x3a,0x0d,
-            0xc9,0x80,0x6c,0x3c,0x66,0xf3,0xef,0xd8
-        ])
-    ];
+#[cfg(test)]
+mod tests {
+    use hashes::md2::MD2;
+    use hashes::test::{HashTestCase, perform_hash_test};
 
-    for &test in tests.iter() {
-        let (msg, digest) = test;
-        let mut state = md2_init().unwrap();
-        state = md2_process(&mut state, msg.into_bytes()).unwrap();
-        let calculated = md2_done(&mut state).unwrap();
-        for i in range(0, 15) {
-            assert!(digest[i] == calculated[i])
+    #[test]
+    fn test_md2() {
+        let tests = vec![
+            HashTestCase {
+                input: "",
+                output: vec![
+                    0x83,0x50,0xe5,0xa3,0xe2,0x4c,0x15,0x3d,
+                    0xf2,0x27,0x5c,0x9f,0x80,0x69,0x27,0x73
+                ],
+                output_str: ""
+            },
+            HashTestCase {
+                input: "a",
+                output: vec![
+                    0x32,0xec,0x01,0xec,0x4a,0x6d,0xac,0x72,
+                    0xc0,0xab,0x96,0xfb,0x34,0xc0,0xb5,0xd1
+                ],
+                output_str: ""
+            },
+            HashTestCase {
+                input: "message digest",
+                output: vec![
+                    0xab,0x4f,0x49,0x6b,0xfb,0x2a,0x53,0x0b,
+                    0x21,0x9f,0xf3,0x30,0x31,0xfe,0x06,0xb0
+                ],
+                output_str: ""
+            },
+            HashTestCase {
+                input: "abcdefghijklmnopqrstuvwxyz",
+                output: vec![
+                    0x4e,0x8d,0xdf,0xf3,0x65,0x02,0x92,0xab,
+                    0x5a,0x41,0x08,0xc3,0xaa,0x47,0x94,0x0b
+                ],
+                output_str: ""
+            },
+            HashTestCase {
+                input: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+                output: vec![
+                    0xda,0x33,0xde,0xf2,0xa4,0x2d,0xf1,0x39,
+                    0x75,0x35,0x28,0x46,0xc3,0x03,0x38,0xcd
+                ],
+                output_str: ""
+            },
+            HashTestCase {
+                input: "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+                output: vec![
+                    0xd5,0x97,0x6f,0x79,0xd8,0x3d,0x3a,0x0d,
+                    0xc9,0x80,0x6c,0x3c,0x66,0xf3,0xef,0xd8
+                ],
+                output_str: ""
+            }
+        ];
+
+        let mut md2 = MD2::new();
+        for t in tests.iter() {
+            perform_hash_test(&mut md2, t);
         }
     }
 }

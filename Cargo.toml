@@ -3,9 +3,3 @@
 name = "enigma"
 version = "0.0.0"
 authors = ["Florian Wilkens <floya@live.de>"]
-tags = []
-
-[[lib]]
-
-name = "enigma"
-path = "src/lib.rs"

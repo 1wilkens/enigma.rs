@@ -1,4 +1,5 @@
 pub mod md2;
+pub mod md4;
 
 pub trait HashFunction {
     /// Set the input bytes of the HashFunction

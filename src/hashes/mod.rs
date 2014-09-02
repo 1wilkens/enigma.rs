@@ -1,3 +1,5 @@
+mod macros;
+
 pub mod md2;
 pub mod md4;
 

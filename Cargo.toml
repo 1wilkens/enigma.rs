@@ -4,3 +4,8 @@ name = "enigma"
 version = "0.0.1-alpha"
 authors = ["Florian Wilkens <floya@live.de>"]
 license = "MIT"
+
+description = """
+A (hopefully) growing set of cryptographic functions.
+Mostly a learning experiment for me and obviously not anywhere near useable.
+"""

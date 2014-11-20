@@ -1,4 +1,4 @@
-static MD2_S_Table: &'static [u8] = &[
+static MD2_S_TABLE: &'static [u8] = &[
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
     0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
     0x1E, 0x9B, 0x57, 0x3C, 0xFD, 0xD4, 0xE0, 0x16, 0x67, 0x42, 0x6F, 0x18, 0x8A, 0x17, 0xE5, 0x12,
@@ -38,7 +38,7 @@ fn md2_compress(state: &mut MD2) {
    /* perform 18 rounds */
    for round in range(0, 18) {
        for i in range(0, 48) {
-           state.x[i] ^= MD2_S_Table[(t & 255) as uint];
+           state.x[i] ^= MD2_S_TABLE[(t & 255) as uint];
            t = state.x[i];
        }
        t = t + round & 255;
@@ -51,7 +51,7 @@ fn md2_update_checksum(state: &mut MD2) {
     for i in range(0, 16) {
         /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference
          * source code [and test vectors] say otherwise. */
-        state.check_sum[i] ^= MD2_S_Table[(state.buffer[i] ^ L) as uint] & 255;
+        state.check_sum[i] ^= MD2_S_TABLE[(state.buffer[i] ^ L) as uint] & 255;
         L = state.check_sum[i];
     }
 }
@@ -113,7 +113,7 @@ impl ::hashes::HashFunction for MD2 {
     fn hash(&mut self) {
         // When is this the case?
         if self.cur_len >= self.buffer.len() {
-           fail!()
+           panic!("self.cur_len >= self.buffer.len()")
         }
 
         /* pad the message */

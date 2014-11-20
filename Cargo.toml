@@ -4,6 +4,7 @@ name = "enigma"
 version = "0.0.1-alpha"
 authors = ["Florian Wilkens <floya@live.de>"]
 license = "MIT"
+repository = "http://github.com/MrFloya/enigma.rs"
 
 description = """
 A (hopefully) growing set of cryptographic functions.

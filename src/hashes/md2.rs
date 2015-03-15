@@ -24,7 +24,7 @@ pub struct MD2 {
     check_sum : [u8; 16],
     x         : [u8; 48],
     buffer    : [u8; 16],
-    cur_len   : uint
+    cur_len   : usize
 }
 
 fn md2_compress(state: &mut MD2) {
@@ -38,7 +38,7 @@ fn md2_compress(state: &mut MD2) {
    /* perform 18 rounds */
    for round in range(0, 18) {
        for i in range(0, 48) {
-           state.x[i] ^= MD2_S_TABLE[(t & 255) as uint];
+           state.x[i] ^= MD2_S_TABLE[(t & 255) as usize];
            t = state.x[i];
        }
        t = t + round & 255;
@@ -51,7 +51,7 @@ fn md2_update_checksum(state: &mut MD2) {
     for i in range(0, 16) {
         /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference
          * source code [and test vectors] say otherwise. */
-        state.check_sum[i] ^= MD2_S_TABLE[(state.buffer[i] ^ L) as uint] & 255;
+        state.check_sum[i] ^= MD2_S_TABLE[(state.buffer[i] ^ L) as usize] & 255;
         L = state.check_sum[i];
     }
 }
@@ -85,7 +85,7 @@ impl ::hashes::HashFunction for MD2 {
         // First reset the hash state
         self.reset();
 
-        let mut index = 0u;
+        let mut index = 0usize;
         let mut in_len = input.len();
 
         loop {
@@ -93,12 +93,12 @@ impl ::hashes::HashFunction for MD2 {
                 break;
             }
 
-            let n = min(in_len, (16 - self.cur_len()));
+            let n = min(in_len, (16 - self.cur_len));
             for i in range(0, n) {
                 self.buffer[self.cur_len + i] = input[index + i];
             }
             self.cur_len += n;
-            index         += n;
+            index        += n;
             in_len       -= n;
 
             /* if 16 bytes are filled compress and update checksum */
@@ -118,7 +118,7 @@ impl ::hashes::HashFunction for MD2 {
 
         /* pad the message */
         let k: u8 = 16u8 - self.cur_len as u8;
-        for i in range(self.cur_len, 16) {
+        for i in range(self.cur_len as usize, 16) {
             self.buffer[i] = k;
         }
 
@@ -141,9 +141,9 @@ impl ::hashes::HashFunction for MD2 {
         }
     }
 
-    fn get_blocksize(&self) -> uint { 16 }
+    fn get_blocksize(&self) -> u32 { 16 }
 
-    fn get_output_length_in_bits(&self) -> uint { 128 }
+    fn get_output_length_in_bits(&self) -> u32 { 128 }
 }
 
 #[cfg(test)]

@@ -1,12 +1,15 @@
 #![crate_name = "enigma"]
 #![crate_type = "lib"]
 
-#![feature(macro_rules)]
+#![feature(core)]
 
 //#![deny(missing_doc)]
 
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 
+#[allow(dead_code)]
 pub mod ciphers;
+#[allow(dead_code)]
 pub mod hashes;
+#[allow(dead_code)]
 pub mod util;

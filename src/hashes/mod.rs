@@ -48,10 +48,10 @@ pub trait HashFunction {
     /// * The resulting hex-String
     //FIXME: figure out how to properly document return values
     fn get_output_str(&mut self) -> String {
-        use serialize::hex::ToHex;
+        use rustc_serialize::hex::ToHex;
         use std::vec::Vec;
 
-        let mut output = Vec::from_elem(self.get_output_length(), 0u8);
+        let mut output: Vec<u8> = (0..self.get_output_length()).map(|_| 0).collect();
         self.get_output(output.as_mut_slice());
         output.as_slice().to_hex()
     }
@@ -60,21 +60,21 @@ pub trait HashFunction {
     ///
     /// # Returns
     /// * The used blocksize
-    fn get_blocksize(&self) -> uint;
+    fn get_blocksize(&self) -> u32;
 
     /// Returns the length of the result vector in bits as commonly used
     /// in hash specifications
     ///
     /// # Returns
     /// * The length if the output vector in bits
-    fn get_output_length_in_bits(&self) -> uint;
+    fn get_output_length_in_bits(&self) -> u32;
 
     /// Convenience method to calculate the required size of a output vector in bytes
     ///
     /// # Returns
     /// * The length of the output vector in bytes
-    fn get_output_length(&self) -> uint {
-        (self.get_output_length_in_bits() + 7) / 8
+    fn get_output_length(&self) -> usize {
+        ((self.get_output_length_in_bits() + 7) / 8) as usize
     }
 }
 

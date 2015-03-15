@@ -6,7 +6,7 @@ authors = ["Florian Wilkens <floya@live.de>"]
 license = "MIT"
 repository = "http://github.com/MrFloya/enigma.rs"
 
-description = """
-A (hopefully) growing set of cryptographic functions.
-Mostly a learning experiment for me and obviously not anywhere near useable.
-"""
+description = "A (hopefully) growing set of cryptographic functions. Mostly a learning experiment for me and obviously not anywhere near useable. "
+
+[dependencies.rustc-serialize]
+rustc-serialize = "*"

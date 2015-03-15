@@ -1,5 +1,3 @@
-#![macro_escape]
-
 #[macro_export]
 macro_rules! hash_test (
     ($inp:expr, $out_b:expr, $out_s:expr) => (
@@ -9,4 +7,4 @@ macro_rules! hash_test (
             output_str: $out_s
         }
     )
-)
+);

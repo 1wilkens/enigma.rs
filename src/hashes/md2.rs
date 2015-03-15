@@ -21,9 +21,9 @@ static MD2_S_TABLE: &'static [u8] = &[
 /// Code is ported and `rustified` from libtomcrypt
 #[allow(non_camel_case_types)]
 pub struct MD2 {
-    check_sum : [u8, ..16],
-    x         : [u8, ..48],
-    buffer    : [u8, ..16],
+    check_sum : [u8; 16],
+    x         : [u8; 48],
+    buffer    : [u8; 16],
     cur_len   : uint
 }
 
@@ -63,17 +63,17 @@ impl MD2 {
     /// * The created instance
     pub fn new() -> MD2 {
         MD2 {
-            check_sum : [0, ..16],
-            x         : [0, ..48],
-            buffer    : [0, ..16],
+            check_sum : [0; 16],
+            x         : [0; 48],
+            buffer    : [0; 16],
             cur_len   : 0
         }
     }
 
     fn reset(&mut self) {
-        self.check_sum = [0, ..16];
-        self.x         = [0, ..48];
-        self.buffer    = [0, ..16];
+        self.check_sum = [0; 16];
+        self.x         = [0; 48];
+        self.buffer    = [0; 16];
         self.cur_len   = 0;
     }
 }
@@ -93,7 +93,7 @@ impl ::hashes::HashFunction for MD2 {
                 break;
             }
 
-            let n = min(in_len, (16 - self.cur_len));
+            let n = min(in_len, (16 - self.cur_len()));
             for i in range(0, n) {
                 self.buffer[self.cur_len + i] = input[index + i];
             }
@@ -134,7 +134,7 @@ impl ::hashes::HashFunction for MD2 {
     }
 
     fn get_output(&mut self, output: &mut [u8]) {
-        assert!(output.len() >= self.get_output_length())
+        assert!(output.len() >= self.get_output_length());
 
         for i in range(0, 16) {
             output[i] = self.x[i];

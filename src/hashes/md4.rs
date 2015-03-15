@@ -2,27 +2,27 @@
 /// Code is ported and `rustified` from libtomcrypt
 #[allow(non_camel_case_types)]
 pub struct MD4 {
-    state   : [uint, ..4],
-    buffer  : [u8, ..64],
+    state   : [usize; 4],
+    buffer  : [u8; 64],
     len     : u64,
-    cur_len : uint
+    cur_len : usize
 }
 
 /// Helper function as described in the RFC
 #[inline(always)]
-fn f(x: uint, y: uint, z: uint) -> uint {
+fn f(x: usize, y: usize, z: usize) -> usize {
     z ^ (x & (y ^ z))
 }
 
 /// Helper function as described in the RFC
 #[inline(always)]
-fn g(x: uint, y: uint, z: uint) -> uint {
+fn g(x: usize, y: usize, z: usize) -> usize {
     (x & y) | (z & (x | y))
 }
 
 /// Helper function as described in the RFC
 #[inline(always)]
-fn h(x: uint, y: uint, z: uint) -> uint {
+fn h(x: usize, y: usize, z: usize) -> usize {
     x ^ y ^ z
 }
 
@@ -63,9 +63,9 @@ impl ::hashes::HashFunction for MD4 {
         assert!(output.len() >= self.get_output_length())
     }
 
-    fn get_blocksize(&self) -> uint { 64 }
+    fn get_blocksize(&self) -> usize { 64 }
 
-    fn get_output_length_in_bits(&self) -> uint { 128 }
+    fn get_output_length_in_bits(&self) -> usize { 128 }
 }
 
 #[cfg(test)]

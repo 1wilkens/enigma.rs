@@ -1,3 +1,4 @@
+#[macro_use]
 mod macros;
 
 pub mod md2;
@@ -88,7 +89,7 @@ mod test {
     }
 
     pub fn perform_hash_test(hash: &mut HashFunction, test: &HashTestCase) {
-        println!("Testing hash against:\t \"{:2}\"", test.input)
+        println!("Testing hash against:\t \"{:2}\"", test.input);
         hash.set_input_str(test.input);
         hash.hash();
 
@@ -96,21 +97,21 @@ mod test {
         hash.get_output(result.as_mut_slice());
         let result_str = hash.get_output_str();
 
-        print!("result: \t\t")
+        print!("result: \t\t");
         for r in result.iter() {
             print!("0x{:x} ", *r)
         }
-        println!("")
-        print!("(expected) output:\t")
+        println!("");
+        print!("(expected) output:\t");
         for o in test.output.iter() {
             print!("0x{:x} ", *o)
         }
-        println!("")
-        println!("result_str:\t\t{:s}", result_str)
-        println!("(expected) output_str:\t{:s}", test.output_str)
-        println!("")
+        println!("");
+        println!("result_str:\t\t{:s}", result_str);
+        println!("(expected) output_str:\t{:s}", test.output_str);
+        println!("");
 
-        assert!(result == test.output)
-        assert!(result_str.as_slice() == test.output_str)
+        assert!(result == test.output);
+        assert!(result_str.as_slice() == test.output_str);
     }
 }

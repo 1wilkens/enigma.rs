@@ -52,8 +52,8 @@ pub trait HashFunction {
         use std::vec::Vec;
 
         let mut output: Vec<u8> = (0..self.get_output_length()).map(|_| 0).collect();
-        self.get_output(output.as_mut_slice());
-        output.as_slice().to_hex()
+        self.get_output(&mut output[..]);
+        output.to_hex()
     }
 
     /// Returns the blocksize of the HashFunction used in bytes

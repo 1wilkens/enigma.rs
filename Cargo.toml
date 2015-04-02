@@ -1,12 +1,12 @@
 [package]
 
 name = "enigma"
-version = "0.0.1-alpha"
-authors = ["Florian Wilkens <floya@live.de>"]
+version = "0.0.1"
+authors = ["Florian Wilkens <mrfloya_github@outlook.com>"]
 license = "MIT"
 repository = "http://github.com/MrFloya/enigma.rs"
 
 description = "A (hopefully) growing set of cryptographic functions. Mostly a learning experiment for me and obviously not anywhere near useable. "
 
-[dependencies.rustc-serialize]
+[dependencies]
 rustc-serialize = "*"

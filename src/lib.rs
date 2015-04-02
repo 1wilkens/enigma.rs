@@ -1,11 +1,6 @@
-#![crate_name = "enigma"]
-#![crate_type = "lib"]
-
-#![feature(core)]
-
 //#![deny(missing_doc)]
 
-extern crate "rustc-serialize" as rustc_serialize;
+extern crate rustc_serialize;
 
 #[allow(dead_code)]
 pub mod ciphers;

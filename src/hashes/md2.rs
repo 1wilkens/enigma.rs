@@ -29,15 +29,15 @@ pub struct MD2 {
 
 fn md2_compress(state: &mut MD2) {
    /* copy block to state.x */
-   for i in range(0, 16) {
+   for i in 0..16 {
        state.x[16 + i] = state.buffer[i];
        state.x[32 + i] = state.x[i] ^ state.x[16 + i];
    }
 
    let mut t = 0u8;
    /* perform 18 rounds */
-   for round in range(0, 18) {
-       for i in range(0, 48) {
+   for round in 0..18 {
+       for i in 0..48 {
            state.x[i] ^= MD2_S_TABLE[(t & 255) as usize];
            t = state.x[i];
        }
@@ -48,7 +48,7 @@ fn md2_compress(state: &mut MD2) {
 #[allow(non_snake_case)]
 fn md2_update_checksum(state: &mut MD2) {
     let mut L = state.check_sum[15];
-    for i in range(0, 16) {
+    for i in 0..16 {
         /* caution, the RFC says its "C[j] = S[M[i*16+j] xor L]" but the reference
          * source code [and test vectors] say otherwise. */
         state.check_sum[i] ^= MD2_S_TABLE[(state.buffer[i] ^ L) as usize] & 255;
@@ -94,7 +94,7 @@ impl ::hashes::HashFunction for MD2 {
             }
 
             let n = min(in_len, (16 - self.cur_len));
-            for i in range(0, n) {
+            for i in 0..n {
                 self.buffer[self.cur_len + i] = input[index + i];
             }
             self.cur_len += n;
@@ -118,7 +118,7 @@ impl ::hashes::HashFunction for MD2 {
 
         /* pad the message */
         let k: u8 = 16u8 - self.cur_len as u8;
-        for i in range(self.cur_len as usize, 16) {
+        for i in self.cur_len as usize..16 {
             self.buffer[i] = k;
         }
 
@@ -127,7 +127,7 @@ impl ::hashes::HashFunction for MD2 {
         md2_update_checksum(self);
 
         /* hash checksum */
-        for i in range(0, 16) {
+        for i in 0..16 {
             self.buffer[i] = self.check_sum[i];
         }
         md2_compress(self);
@@ -136,7 +136,7 @@ impl ::hashes::HashFunction for MD2 {
     fn get_output(&mut self, output: &mut [u8]) {
         assert!(output.len() >= self.get_output_length());
 
-        for i in range(0, 16) {
+        for i in 0..16 {
             output[i] = self.x[i];
         }
     }

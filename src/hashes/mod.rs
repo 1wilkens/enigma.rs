@@ -107,8 +107,8 @@ mod test {
             print!("0x{:x} ", *o)
         }
         println!("");
-        println!("result_str:\t\t{:s}", result_str);
-        println!("(expected) output_str:\t{:s}", test.output_str);
+        println!("result_str:\t\t{}", result_str);
+        println!("(expected) output_str:\t{}", test.output_str);
         println!("");
 
         assert!(result == test.output);

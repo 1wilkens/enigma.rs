@@ -93,7 +93,7 @@ mod test {
         hash.set_input_str(test.input);
         hash.hash();
 
-        let mut result = Vec::from_elem(hash.get_output_length(), 0u8);
+        let mut result = (0..hash.get_output_length()).map(|_| 0u8);
         hash.get_output(result.as_mut_slice());
         let result_str = hash.get_output_str();
 
